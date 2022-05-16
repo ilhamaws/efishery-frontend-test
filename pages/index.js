@@ -1,8 +1,67 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import React, { useEffect, Fragment, useState } from "react";
 import styles from '../styles/Home.module.css'
+import { useDispatch, useSelector } from "react-redux";
+import * as fishService from '../services/fish';
+import { FishTable, FormModal } from '../components'
 
 export default function Home() {
+
+  const columns = [
+    {
+        name: 'Title',
+        selector: row => row.komoditas,
+        sortable: true,
+    },
+    {
+        name: 'Provinsi',
+        selector: row => row.area_provinsi,
+        sortable: true,
+    },
+    {
+        name: 'Kota',
+        selector: row => row.area_kota,
+        sortable: true,
+    },
+    {
+        name: 'Ukuran',
+        selector: row => row.size,
+        sortable: true,
+    },
+    {
+        name: 'Harga',
+        selector: row => row.price,
+        sortable: true,
+    },
+  ];
+
+  const [data, setData] = useState([]);
+  const [searchText, setSearchText] = useState('');
+
+  const loadData = async () => {
+    fishService.getDataSize().then((response) => {
+      if (response) {
+          setData(response)
+      };
+    });
+  }
+
+  const dispatch = useDispatch();
+  const fishData = useSelector((state) => state.state.fishData);
+  useEffect(() => {
+    dispatch(fishService.getData());
+  }, [dispatch]);
+
+  const filteredItems = fishData.filter(
+    item =>
+      (item.komoditas && item.komoditas.toLowerCase().includes(searchText.toLowerCase())) ||
+      (item.area_kota && item.area_kota.toLowerCase().includes(searchText.toLowerCase())) ||
+      (item.area_provinsi && item.area_provinsi.toLowerCase().includes(searchText.toLowerCase())) ||
+      (item.price && item.price.toLowerCase().includes(searchText.toLowerCase())) ||
+      (item.size && item.size.toLowerCase().includes(searchText.toLowerCase()))
+  )
+
   return (
     <div className={styles.container}>
       <Head>
@@ -11,59 +70,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+      <div className="container mx-auto">
+        <div className="flex justify-end mt-10 mb-3">
+          <input onChange={ (e) => setSearchText(e.target.value) } id="name" className="text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal h-9 mr-3 flex items-center pl-3 text-sm border-gray-300 rounded border" placeholder="Pilih komoditas ikan" />
+          <FormModal />
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
+        <FishTable fish={filteredItems} />
+      </div>
     </div>
   )
 }
