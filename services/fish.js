@@ -37,46 +37,69 @@ export function getData() {
 //     }
 // }
 
-export function updateData(payload) {
-    return async dispatch => {
-        try {
-            const data = await store.edit('list', {
-                search: { uuid: payload.uuid },
-                set: { ...payload }
-            })
-            if (data) {
-                dispatch({
-                    type: 'EDIT_FISH_DATA',
-                    data: payload
-                })
-            }
-        } catch (error) {
-            throw error
-        }
-    }
-}
+// export function updateData(payload) {
+//     return async dispatch => {
+//         try {
+//             const data = await store.edit('list', {
+//                 search: { uuid: payload.uuid },
+//                 set: { ...payload }
+//             })
+//             if (data) {
+//                 dispatch({
+//                     type: 'EDIT_FISH_DATA',
+//                     data: payload
+//                 })
+//             }
+//         } catch (error) {
+//             throw error
+//         }
+//     }
+// }
 
-export function deleteData (payload) {
-    return async dispatch => {
-        try {
-            const data = await store.delete('list', {
-                search: { uuid: payload.uuid }
-            })
-            if (data) {
-                dispatch({
-                    type: 'DELETE_FISH_DATA',
-                    data: payload
-                })
-            }
-        } catch (error) {
-            throw error
-        }
-    }
-}
+// export function deleteData (payload) {
+//     return async dispatch => {
+//         try {
+//             const data = await store.delete('list', {
+//                 search: { uuid: payload.uuid }
+//             })
+//             if (data) {
+//                 dispatch({
+//                     type: 'DELETE_FISH_DATA',
+//                     data: payload
+//                 })
+//             }
+//         } catch (error) {
+//             throw error
+//         }
+//     }
+// }
 
 export const createData = async (payload) => {
     try {
         const data = await store.append('list', [payload])
+        return data
+    } catch (error) {
+        throw error
+    }
+}
+
+export const updateData = async (payload) => {
+    try {
+        const data = await store.edit('list', {
+            search: { uuid: payload.uuid },
+            set: { ...payload }
+        })
+        return data
+    } catch (error) {
+        throw error
+    }
+}
+
+export const deleteData = async (payload) => {
+    try {
+        const data = await store.delete('list', {
+            search: { uuid: payload.uuid }
+        })
         return data
     } catch (error) {
         throw error

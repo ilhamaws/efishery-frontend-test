@@ -8,7 +8,7 @@ import { saveState, loadState } from '../services/localStorage';
 let store;
 const persistedState = loadState();
 
-function initStore(initialState) {
+function initStore() {
   return createStore(
     reducers,
     persistedState,
