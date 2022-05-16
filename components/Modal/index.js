@@ -5,6 +5,7 @@ import * as fishService from '../../services/fish';
 import * as helper from '../../lib/helper';
 import { v4 } from 'uuid';
 import Swal from 'sweetalert2';
+import { useDispatch, useSelector } from "react-redux";
 
 Modal.setAppElement('#__next')
 
@@ -38,6 +39,8 @@ export const FormModal = (props) => {
     const [areaDataList, setareaDataList] = useState([])
     const [provinceDataList, setprovinceDataList] = useState([])
     const [cityDataList, setcityDataList] = useState([])
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         fishService.getDataSize().then((response) => {
@@ -132,29 +135,29 @@ export const FormModal = (props) => {
             showLoaderOnConfirm: true,
             preConfirm: () => {
                 setState({ ...state, loading: true })
-                fishService.createData({
-                    komoditas: commodity,
-                    area_provinsi: provinsi,
-                    area_kota: city,
-                    size: size,
-                    price: price,
-                    tgl_parsed: date + ' ' + helper.getCurrentTime(),
-                    uuid: v4()
-                }).then((response) => {
-                    if (response) {
-                        console.log(response)
-                        Swal.fire({
-                            title: "Success!",
-                            text: "Data perikanan berhasil ditambahkan",
-                            icon: "success"
-                        })
-                        .then((res) => {
-                            if (res.value) {
-                                setState({ ...state, loading: false })
-                                toggle()
-                            }
-                        })
-                    };
+
+                dispatch(
+                    fishService.createData({
+                        komoditas: commodity,
+                        area_provinsi: provinsi,
+                        area_kota: city,
+                        size: size,
+                        price: price,
+                        tgl_parsed: date + ' ' + helper.getCurrentTime(),
+                        uuid: v4()
+                    })
+                ).then((response) => {
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Data perikanan berhasil ditambahkan",
+                        icon: "success"
+                    })
+                    .then((res) => {
+                        if (res.value) {
+                            setState({ ...state, loading: false })
+                            toggle()
+                        }
+                    })
                 });
             }
         });

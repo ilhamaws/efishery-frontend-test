@@ -6,6 +6,7 @@ import * as fishService from '../../services/fish';
 import * as helper from '../../lib/helper';
 import { v4 } from 'uuid';
 import Swal from 'sweetalert2';
+import { useDispatch, useSelector } from "react-redux";
 
 Modal.setAppElement('#__next')
 
@@ -42,6 +43,8 @@ export const FishTable = (props) => {
 	const [modalIsOpen, setIsOpen] = useState(false)
 	const [modalDeleteIsOpen, setDeleteIsOpen] = useState(false)
 
+    const dispatch = useDispatch();
+
     useEffect(() => {
         fishService.getDataSize().then((response) => {
             if (response) {
@@ -63,9 +66,9 @@ export const FishTable = (props) => {
         fishService.getDataArea().then((response) => {
             if (response) {
                 setareaDataList(response)
-            };
-        });
-    }, []);
+            }
+        })
+    }, [])
 
     function handleButtonEdit(data) { 
         filteredDataKota(data.area_provinsi)
@@ -105,15 +108,15 @@ export const FishTable = (props) => {
 
     const handleChange = state => {
         // console.log('state', state.selectedRows);
-    };
+    }
 
     function handleEdit() {
-        const { uuid, commodity, city, size, price, formType } = state;
+        const { uuid, commodity, city, size, price, formType } = state
         const date = helper.getCurrentYear() + '/' + helper.getCurrentMonth() + '/' + helper.getCurrentDay()
 
         Swal.fire({
             title: 'Confirmation', 
-            text: 'Are you sure want to submit ?',
+            text: 'Apakah anda setuju untuk merubah data?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#5eead4',
@@ -123,7 +126,7 @@ export const FishTable = (props) => {
             showLoaderOnConfirm: true,
             preConfirm: () => {
                 setState({ ...state, loading: true })
-                fishService.updateData({
+                dispatch(fishService.updateData({
                     komoditas: commodity,
                     area_provinsi: provinsi,
                     area_kota: city,
@@ -131,24 +134,22 @@ export const FishTable = (props) => {
                     price: price,
                     tgl_parsed: date + ' ' + helper.getCurrentTime(),
                     uuid: uuid
-                }).then((response) => {
-                    if (response) {
-                        console.log(response)
-                        Swal.fire({
-                            title: "Success!",
-                            text: "Data perikanan berhasil dirubah",
-                            icon: "success"
-                        })
-                        .then((res) => {
-                            if (res.value) {
-                                setState({ ...state, loading: false })
-                                toggle()
-                            }
-                        })
-                    };
-                });
+                })).then((response) => {
+                    console.log(response)
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Data perikanan berhasil dirubah",
+                        icon: "success"
+                    })
+                    .then((res) => {
+                        if (res.value) {
+                            setState({ ...state, loading: false })
+                            toggle()
+                        }
+                    })
+                })
             }
-        });
+        })
     };
 
     function HandleDelete(data) {
@@ -165,25 +166,23 @@ export const FishTable = (props) => {
             showLoaderOnConfirm: true,
             preConfirm: () => {
                 setState({ ...state, loading: true })
-                fishService.deleteData({
+                dispatch(fishService.deleteData({
                     uuid: data.uuid
-                }).then((response) => {
-                    if (response) {
-                        Swal.fire({
-                            title: "Success!",
-                            text: "Data perikanan berhasil dihapus",
-                            icon: "success"
-                        })
-                        .then((res) => {
-                            if (res.value) {
-                                setState({ ...state, loading: false })
-                            }
-                        })
-                    };
-                });
+                })).then((response) => {
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Data perikanan berhasil dihapus",
+                        icon: "success"
+                    })
+                    .then((res) => {
+                        if (res.value) {
+                            setState({ ...state, loading: false })
+                        }
+                    })
+                })
             }
-        });
-    };
+        })
+    }
 
     const columns = [
         {
